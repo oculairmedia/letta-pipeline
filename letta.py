@@ -184,8 +184,16 @@ class Pipe:
         return [
             {
                 "id": f"letta.{self.valves.LETTA_AGENT_ID}",
-                "name": f"Letta Agent {self.valves.LETTA_AGENT_ID[-6:]}",
-                "meta": {"provider": "letta", "agent_id": self.valves.LETTA_AGENT_ID},
+                "name": f"Letta",
+                "meta": {
+                    "provider": "letta",
+                    "agent_id": self.valves.LETTA_AGENT_ID,
+                    "profile": {
+                        "name": "Letta",
+                        "description": "A helpful AI assistant that can engage in natural conversations and help with various tasks.",
+                        "avatar": "https://letta2.oculair.ca/static/letta-avatar.png"
+                    }
+                },
             }
         ]
 
