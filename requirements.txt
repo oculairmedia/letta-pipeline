@@ -1,0 +1,9 @@
+# Core dependencies
+pydantic>=2.9.2
+fastapi>=0.111.0
+urllib3>=2.0.0
+tenacity>=8.2.3
+
+# Development dependencies
+pytest>=8.3.2
+python-dotenv>=1.0.0
