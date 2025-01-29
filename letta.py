@@ -358,6 +358,13 @@ class Pipe:
                             if message_type == "assistant_message":
                                 content = chunk_data.get("content", "")
                                 if content:
+                                    # Clear the processing status when we get the first message
+                                    if display_events:
+                                        await self._dev_event(
+                                            "status",
+                                            None,  # Clear the status
+                                            event_emitter
+                                        )
                                     if self.valves.DEV_MODE:
                                         self._log_response("assistant_message", content)
                                     yield content + "\n"
@@ -396,13 +403,7 @@ class Pipe:
                                     event_emitter
                                 )
 
-                # Send final status event
-                if display_events:
-                    await self._dev_event(
-                        "status",
-                        None,  # This will clear the status
-                        event_emitter
-                    )
+                # All done - status was cleared when message arrived
 
             except Exception as e:
                 error_data = {
