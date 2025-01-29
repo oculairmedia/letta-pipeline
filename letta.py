@@ -217,7 +217,7 @@ class Pipe:
                 await __event_emitter__({
                     "type": "status",
                     "data": {
-                        "status": "starting",
+                        "status": "processing",
                         "description": "Initializing Letta connection",
                         "done": False
                     }
@@ -232,8 +232,7 @@ class Pipe:
                     "type": "status",
                     "data": {
                         "status": "processing",
-                        "description": "Processing messages",
-                        "message_count": len(messages),
+                        "description": "Processing request",
                         "done": False
                     }
                 })
@@ -314,7 +313,7 @@ class Pipe:
                     await self._dev_event(
                         "status",
                         {
-                            "status": "connecting",
+                            "status": "processing",
                             "description": "Connecting to Letta API",
                             "done": False
                         },
@@ -340,7 +339,7 @@ class Pipe:
                     await self._dev_event(
                         "status",
                         {
-                            "status": "connected",
+                            "status": "processing",
                             "description": "Connected to Letta API",
                             "done": False
                         },
@@ -430,16 +429,19 @@ class Pipe:
                         {
                             "status": "complete",
                             "description": "Processing completed",
-                            "done": True,
-                            "timeout": 1000
+                            "done": True
                         },
                         event_emitter
                     )
                     
-                    # Clear status after timeout
+                    # Clear status immediately
                     await self._dev_event(
                         "status",
-                        None,
+                        {
+                            "status": "idle",
+                            "description": "",
+                            "done": True
+                        },
                         event_emitter
                     )
 
