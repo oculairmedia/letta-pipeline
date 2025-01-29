@@ -213,26 +213,17 @@ class Pipe:
                 user = Users.get_user_by_id(__user__["id"])
                 return await generate_chat_completion(__request__, body, user)
 
-            if display_events:
-                await __event_emitter__({
-                    "type": "status",
-                    "data": {
-                        "status": "processing",
-                        "description": "Initializing Letta connection",
-                        "done": False
-                    }
-                })
-
             # Process messages
             messages = self._format_messages(body["messages"])
             last_message = messages[-1] if messages else {}
 
+            # Send initial status event
             if display_events:
                 await __event_emitter__({
                     "type": "status",
                     "data": {
                         "status": "processing",
-                        "description": "Processing request",
+                        "description": "Processing request...",
                         "done": False
                     }
                 })
@@ -308,18 +299,6 @@ class Pipe:
                     self._dev_print(f"Request Headers: {json.dumps(headers, indent=2)}", "DEBUG")
                     self._dev_print(f"Request Payload: {json.dumps(payload, indent=2)}", "DEBUG")
 
-                # Connection status event
-                if display_events:
-                    await self._dev_event(
-                        "status",
-                        {
-                            "status": "processing",
-                            "description": "Connecting to Letta API",
-                            "done": False
-                        },
-                        event_emitter
-                    )
-
                 # Send request
                 response = self._send_request(
                     "POST",
@@ -333,18 +312,6 @@ class Pipe:
                 if self.valves.DEV_MODE:
                     self._dev_print(f"Response Status: {response.status}", "DEBUG")
                     self._dev_print(f"Response Headers: {json.dumps(dict(response.headers), indent=2)}", "DEBUG")
-
-                # Connected event
-                if display_events:
-                    await self._dev_event(
-                        "status",
-                        {
-                            "status": "processing",
-                            "description": "Connected to Letta API",
-                            "done": False
-                        },
-                        event_emitter
-                    )
 
                 # Process streaming response
                 for chunk in response.stream():
@@ -421,27 +388,11 @@ class Pipe:
                                     event_emitter
                                 )
 
-                # Completion events
+                # Send final status event
                 if display_events:
-                    # Send completion message
                     await self._dev_event(
                         "status",
-                        {
-                            "status": "complete",
-                            "description": "Processing completed",
-                            "done": True
-                        },
-                        event_emitter
-                    )
-                    
-                    # Clear status immediately
-                    await self._dev_event(
-                        "status",
-                        {
-                            "status": "idle",
-                            "description": "",
-                            "done": True
-                        },
+                        None,  # This will clear the status
                         event_emitter
                     )
 
