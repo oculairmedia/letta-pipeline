@@ -282,12 +282,22 @@ class Pipe:
                                 })
 
                             elif message_type == "reasoning_message" and getattr(user_valves, "SHOW_REASONING", True):
+                                step = chunk_data.get("step", "unknown")
+                                content = chunk_data.get("content", "")
                                 reasoning_data = {
-                                    "step": chunk_data.get("step", "unknown"),
-                                    "content": chunk_data.get("content", "")
+                                    "step": step,
+                                    "content": content
                                 }
                                 if self.valves.DEV_MODE:
                                     logger.debug(f"Reasoning: {reasoning_data}")
+                                # Update status with reasoning step
+                                await self.emit_status(
+                                    event_emitter,
+                                    "info",
+                                    f"Reasoning ({step}): {content}",
+                                    False
+                                )
+                                # Also emit reasoning event for other UI elements
                                 await event_emitter({
                                     "type": "reasoning",
                                     "data": reasoning_data
@@ -358,7 +368,7 @@ class Pipe:
                 await self.emit_status(__event_emitter__, "error", "No messages provided", True)
                 return ""
 
-            await self.emit_status(__event_emitter__, "info", "Sending request to Letta agent...", False)
+            await self.emit_status(__event_emitter__, "info", "🔄 Processing request...", False)
 
             try:
                 response = await self.get_letta_response(
@@ -371,10 +381,10 @@ class Pipe:
                     logger.debug(f"Letta agent response: {response}")
                 
                 if response:
-                    await self.emit_status(__event_emitter__, "success", "Response received", True)
+                    await self.emit_status(__event_emitter__, "success", "✓ Response complete", True)
                     return response
                 else:
-                    await self.emit_status(__event_emitter__, "error", "Empty response from Letta agent", True)
+                    await self.emit_status(__event_emitter__, "error", "⚠️ Empty response from Letta agent", True)
                     return ""
 
             except Exception as e:
