@@ -13,11 +13,11 @@ def get_jwt_token():
     return token
 
 def upload_function(name, content, description=""):
-    """Upload a function to OpenWebUI"""
+    """Upload or update a function in OpenWebUI"""
     
     OPENWEBUI_JWT_TOKEN = get_jwt_token()
+    function_id = f"custom_{name.lower().replace(' ', '_')}"
     
-    url = f"{OPENWEBUI_URL}/api/v1/functions/create"
     headers = {
         "Authorization": f"Bearer {OPENWEBUI_JWT_TOKEN}",
         "Content-Type": "application/json",
@@ -25,8 +25,18 @@ def upload_function(name, content, description=""):
         "User-Agent": "OpenWebUI-Function-Uploader/1.0"
     }
     
+    # First try to delete the function if it exists
+    delete_url = f"{OPENWEBUI_URL}/api/v1/functions/id/{function_id}/delete"
+    try:
+        requests.delete(delete_url, headers=headers)
+        print("Deleted existing function...")
+    except requests.exceptions.RequestException:
+        pass
+    
+    # Create new function
+    url = f"{OPENWEBUI_URL}/api/v1/functions/create"
     payload = {
-        "id": f"custom_{name.lower().replace(' ', '_')}",
+        "id": function_id,
         "name": name,
         "content": content,
         "meta": {
@@ -36,13 +46,22 @@ def upload_function(name, content, description=""):
     }
     
     try:
+        print("Creating new function...")
+        print(f"URL: {url}")
+        print(f"Headers: {headers}")
+        print(f"Payload: {json.dumps(payload, indent=2)}")
         response = requests.post(url, headers=headers, json=payload)
+        print(f"Response Status: {response.status_code}")
+        print(f"Response Text: {response.text}")
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
         print(f"Error uploading function: {e}")
         if hasattr(e, 'response') and e.response:
             print(f"Response: {e.response.text}")
+            print(f"Request URL: {e.response.url}")
+            print(f"Request Headers: {e.response.request.headers}")
+            print(f"Request Body: {e.response.request.body}")
         return None
 
 if __name__ == "__main__":

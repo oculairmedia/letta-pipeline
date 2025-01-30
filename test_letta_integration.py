@@ -4,6 +4,16 @@ import json
 import urllib3
 import pytest
 from dotenv import load_dotenv
+import sys
+from unittest.mock import MagicMock
+
+# Mock open_webui modules
+sys.modules['open_webui'] = MagicMock()
+sys.modules['open_webui.utils'] = MagicMock()
+sys.modules['open_webui.utils.chat'] = MagicMock()
+sys.modules['open_webui.models'] = MagicMock()
+sys.modules['open_webui.models.users'] = MagicMock()
+
 from letta_openwebuifunction import Pipe
 
 # Load environment variables first
@@ -81,10 +91,15 @@ async def test_letta_integration():
     print("\nTesting message processing...")
     try:
         # Process message through pipe
-        result = pipe.pipe(
+        # Mock event emitter
+        async def event_emitter(event):
+            print(f"Event: {json.dumps(event, indent=2)}")
+
+        result = await pipe.pipe(
             body=test_body,
             __user__=test_user,
-            __request__=None
+            __request__=None,
+            __event_emitter__=event_emitter
         )
         
         # Process streaming response
