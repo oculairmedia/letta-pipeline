@@ -4,12 +4,28 @@ A pipeline integration for Open WebUI that connects to the Letta AI API, providi
 
 ## Features
 
-- Streaming responses with event emitters
-- Development mode with detailed logging
-- Support for reasoning steps and usage statistics
-- Tool integration with Open WebUI
-- Configurable settings through valves
-- Comprehensive test suite
+- 🔄 Streaming responses with real-time updates
+- 🤔 Reasoning steps displayed in status field
+- 📊 Usage statistics tracking
+- 🛠️ Development mode with detailed logging
+- 🔧 Configurable settings via UI
+- 🔌 Tool integration with Open WebUI
+- ✅ Comprehensive test suite
+
+## Message Types
+
+The pipeline handles three types of messages:
+1. `assistant_message` - Main response content
+2. `reasoning_message` - Reasoning steps shown in status
+3. `usage_statistics` - Token usage and performance stats
+
+## Status Messages
+
+Status updates use emojis for better visibility:
+- 🔄 Processing request...
+- 🤔 Reasoning steps
+- ✓ Response complete
+- ⚠️ Error messages
 
 ## Installation
 
